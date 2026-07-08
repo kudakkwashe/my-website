@@ -4,223 +4,170 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Synergy Connect | Coming Soon</title>
+<title>NOTKUDA</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <style>
 
-:root{
-    --bg:#F7F8FA;
-    --card:#FFFFFF;
-    --text:#111827;
-    --muted:#6B7280;
-    --border:#E5E7EB;
-    --primary:#111827;
-    --accent:#4F46E5;
-}
-
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-html{
-    scroll-behavior:smooth;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    font-family:'Inter',sans-serif;
-    background:linear-gradient(180deg,#F9FAFB 0%,#F3F4F6 100%);
-    color:var(--text);
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    padding:30px;
+background:#080808;
+color:white;
+font-family:'Space Grotesk',sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
 }
 
-.background{
-    position:fixed;
-    inset:0;
-    overflow:hidden;
-    z-index:-1;
+body::before{
+content:"";
+position:absolute;
+width:800px;
+height:800px;
+background:radial-gradient(circle,#181818 0%,transparent 70%);
+filter:blur(90px);
+animation:move 10s ease-in-out infinite alternate;
 }
 
-.circle{
-    position:absolute;
-    border-radius:50%;
-    filter:blur(90px);
-    opacity:.25;
-}
-
-.circle:nth-child(1){
-    width:350px;
-    height:350px;
-    background:#4F46E5;
-    top:-80px;
-    left:-80px;
-}
-
-.circle:nth-child(2){
-    width:300px;
-    height:300px;
-    background:#A855F7;
-    bottom:-100px;
-    right:-100px;
+@keyframes move{
+0%{transform:translate(-200px,-100px);}
+100%{transform:translate(200px,120px);}
 }
 
 .container{
-    width:100%;
-    max-width:720px;
-}
-
-.card{
-    background:rgba(255,255,255,.75);
-    backdrop-filter:blur(18px);
-    border:1px solid rgba(255,255,255,.7);
-    border-radius:28px;
-    padding:60px;
-    text-align:center;
-    box-shadow:
-        0 10px 40px rgba(0,0,0,.08);
-}
-
-.badge{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    background:#EEF2FF;
-    color:#4338CA;
-    padding:10px 18px;
-    border-radius:999px;
-    font-size:14px;
-    font-weight:600;
-    margin-bottom:28px;
-}
-
-.logo{
-    font-size:42px;
-    font-weight:800;
-    letter-spacing:-1px;
-    margin-bottom:18px;
-}
-
-.logo span{
-    color:var(--accent);
+position:relative;
+z-index:2;
+width:90%;
+max-width:650px;
+text-align:center;
 }
 
 h1{
-    font-size:56px;
-    line-height:1.05;
-    letter-spacing:-2px;
-    margin-bottom:22px;
+font-size:72px;
+font-weight:700;
+letter-spacing:8px;
+display:inline-block;
+overflow:hidden;
+white-space:nowrap;
+border-right:3px solid white;
+width:0;
+animation:
+typing 2.5s steps(7,end) forwards,
+blink .8s infinite;
 }
 
-p{
-    color:var(--muted);
-    font-size:19px;
-    line-height:1.8;
-    max-width:560px;
-    margin:auto;
-    margin-bottom:42px;
+@keyframes typing{
+from{width:0}
+to{width:100%}
+}
+
+@keyframes blink{
+50%{border-color:transparent;}
+}
+
+.subtitle{
+margin-top:25px;
+color:#9f9f9f;
+font-size:18px;
+opacity:0;
+animation:fade 1s forwards;
+animation-delay:2.2s;
 }
 
 form{
-    display:flex;
-    gap:14px;
-    margin-bottom:20px;
+margin-top:45px;
+display:flex;
+gap:12px;
+justify-content:center;
+flex-wrap:wrap;
+opacity:0;
+animation:fade 1s forwards;
+animation-delay:2.6s;
 }
 
 input{
-    flex:1;
-    padding:18px 20px;
-    border-radius:16px;
-    border:1px solid var(--border);
-    background:white;
-    font-size:16px;
-    transition:.25s;
+width:340px;
+padding:18px 22px;
+background:#131313;
+border:1px solid #2b2b2b;
+border-radius:50px;
+color:white;
+font-size:15px;
+outline:none;
+transition:.3s;
 }
 
 input:focus{
-    outline:none;
-    border-color:var(--accent);
-    box-shadow:0 0 0 4px rgba(79,70,229,.12);
+border-color:white;
 }
 
 button{
-    background:var(--primary);
-    color:white;
-    border:none;
-    border-radius:16px;
-    padding:18px 28px;
-    font-size:16px;
-    font-weight:600;
-    cursor:pointer;
-    transition:.25s;
+padding:18px 28px;
+border:none;
+background:white;
+color:#111;
+border-radius:50px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
 }
 
 button:hover{
-    background:var(--accent);
-    transform:translateY(-2px);
+transform:translateY(-3px);
 }
 
 .footer{
-    font-size:14px;
-    color:#9CA3AF;
+margin-top:35px;
+font-size:13px;
+color:#555;
+opacity:0;
+animation:fade 1s forwards;
+animation-delay:3s;
 }
 
-.stats{
-    display:flex;
-    justify-content:center;
-    gap:50px;
-    margin-top:45px;
-    padding-top:35px;
-    border-top:1px solid #ECECEC;
+.hidden{
+display:none;
 }
 
-.stat h2{
-    font-size:28px;
-    margin-bottom:5px;
+#thanks h2{
+font-size:60px;
+margin-bottom:20px;
 }
 
-.stat span{
-    color:var(--muted);
-    font-size:14px;
+#thanks p{
+font-size:20px;
+color:#999;
+margin-bottom:40px;
+}
+
+#thanks button{
+background:white;
+}
+
+@keyframes fade{
+to{
+opacity:1;
+}
 }
 
 @media(max-width:700px){
 
-.card{
-    padding:35px 25px;
-}
-
 h1{
-    font-size:40px;
+font-size:50px;
+letter-spacing:5px;
 }
 
-.logo{
-    font-size:34px;
-}
-
-p{
-    font-size:17px;
-}
-
-form{
-    flex-direction:column;
-}
-
+input,
 button{
-    width:100%;
-}
-
-.stats{
-    gap:25px;
-    flex-wrap:wrap;
+width:100%;
 }
 
 }
@@ -231,72 +178,67 @@ button{
 
 <body>
 
-<div class="background">
-    <div class="circle"></div>
-    <div class="circle"></div>
-</div>
-
 <div class="container">
 
-<div class="card">
+<div id="landing">
 
-<div class="badge">
-🚀 Launching Soon
-</div>
+<h1>NOTKUDA</h1>
 
-<div class="logo">
-Synergy <span>Connect</span>
-</div>
-
-<h1>
-Connecting Brands<br>
-with Creators.
-</h1>
-
-<p>
-A modern creator marketplace designed to help businesses discover trusted content creators and launch authentic campaigns across Poland. Join our waitlist and be the first to experience Synergy Connect.
+<p class="subtitle">
+Something exciting is coming.<br>
+Join the waitlist.
 </p>
 
-<form action="#" method="POST">
+<form id="waitlist">
 
 <input
 type="email"
-name="email"
-placeholder="Enter your email address"
+placeholder="Enter your email"
 required>
 
 <button type="submit">
-Join Waitlist
+Join
 </button>
 
 </form>
 
 <div class="footer">
-No spam. No unnecessary emails. Just launch updates and early access.
-</div>
-
-<div class="stats">
-
-<div class="stat">
-<h2>🇵🇱</h2>
-<span>Built for Poland</span>
-</div>
-
-<div class="stat">
-<h2>24/7</h2>
-<span>Creator Discovery</span>
-</div>
-
-<div class="stat">
-<h2>100%</h2>
-<span>Free Early Access</span>
+© NOTKUDA
 </div>
 
 </div>
 
+<div id="thanks" class="hidden">
+
+<h2>✓</h2>
+
+<h2>Thank You.</h2>
+
+<p>
+You're officially on the waitlist.
+</p>
+
+<button onclick="location.reload()">
+Go Back
+</button>
+
 </div>
 
 </div>
+
+<script>
+
+document.getElementById("waitlist").addEventListener("submit",function(e){
+
+e.preventDefault();
+
+document.getElementById("landing").classList.add("hidden");
+
+document.getElementById("thanks").classList.remove("hidden");
+
+});
+
+</script>
 
 </body>
 </html>
