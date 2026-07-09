@@ -11,311 +11,267 @@
 <style>
 
 *{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+margin:0;
+padding:0;
+box-sizing:border-box;
 }
 
 body{
-    background:#080808;
-    color:white;
-    font-family:'Space Grotesk',sans-serif;
-    height:100vh;
-    overflow:hidden;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+background:#080808;
+color:white;
+font-family:'Space Grotesk',sans-serif;
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
 }
 
-/* Background glow */
 body::before{
-    content:"";
-    position:absolute;
-    width:700px;
-    height:700px;
-    background:radial-gradient(circle,#222,transparent 70%);
-    filter:blur(100px);
-    animation:move 10s infinite alternate;
+content:"";
+position:absolute;
+width:800px;
+height:800px;
+background:radial-gradient(circle,#181818 0%,transparent 70%);
+filter:blur(90px);
+animation:move 10s ease-in-out infinite alternate;
 }
 
 @keyframes move{
-    from{transform:translate(-200px,-100px);}
-    to{transform:translate(200px,100px);}
+0%{transform:translate(-200px,-100px);}
+100%{transform:translate(200px,120px);}
 }
-
 
 .container{
-    position:relative;
-    z-index:2;
-    text-align:center;
+position:relative;
+z-index:2;
+width:90%;
+max-width:650px;
+text-align:center;
 }
-
 
 h1{
-    font-size:70px;
-    letter-spacing:8px;
-    overflow:hidden;
-    white-space:nowrap;
-    border-right:3px solid white;
-    width:0;
-    animation:type 2.5s steps(10) forwards,
-    blink .7s infinite;
+font-size:72px;
+font-weight:700;
+letter-spacing:8px;
+display:inline-block;
+overflow:hidden;
+white-space:nowrap;
+border-right:3px solid white;
+width:0;
+animation:
+typing 2.5s steps(7,end) forwards,
+blink .8s infinite;
 }
 
-@keyframes type{
-    to{width:100%;}
+@keyframes typing{
+from{width:0}
+to{width:100%}
 }
 
 @keyframes blink{
-    50%{border-color:transparent;}
+50%{border-color:transparent;}
 }
-
 
 .subtitle{
-    margin-top:25px;
-    color:#999;
-    font-size:18px;
-    opacity:0;
-    animation:fade 1s forwards 2s;
+margin-top:25px;
+color:#9f9f9f;
+font-size:18px;
+opacity:0;
+animation:fade 1s forwards;
+animation-delay:2.2s;
 }
-
 
 form{
-    margin-top:45px;
-    display:flex;
-    gap:10px;
-    justify-content:center;
-    opacity:0;
-    animation:fade 1s forwards 2.5s;
+margin-top:45px;
+display:flex;
+gap:12px;
+justify-content:center;
+flex-wrap:wrap;
+opacity:0;
+animation:fade 1s forwards;
+animation-delay:2.6s;
 }
-
 
 input{
-    width:330px;
-    padding:18px 22px;
-    border-radius:50px;
-    background:#111;
-    border:1px solid #333;
-    color:white;
+width:340px;
+padding:18px 22px;
+background:#131313;
+border:1px solid #2b2b2b;
+border-radius:50px;
+color:white;
+font-size:15px;
+outline:none;
+transition:.3s;
 }
 
+input:focus{
+border-color:white;
+}
 
 button{
-    border:0;
-    border-radius:50px;
-    padding:18px 30px;
-    cursor:pointer;
-    font-weight:bold;
+padding:18px 28px;
+border:none;
+background:white;
+color:#111;
+border-radius:50px;
+font-weight:700;
+cursor:pointer;
+transition:.3s;
 }
 
+button:hover{
+transform:translateY(-3px);
+}
 
 .footer{
-    margin-top:30px;
-    color:#555;
+margin-top:35px;
+font-size:13px;
+color:#555;
+opacity:0;
+animation:fade 1s forwards;
+animation-delay:3s;
 }
-
 
 .hidden{
-    display:none;
-}
-
-
-#thanks h2{
-    font-size:60px;
-}
-
-
-#thanks p{
-    color:#999;
-    margin:20px;
-}
-
-
-@keyframes fade{
-    to{opacity:1;}
-}
-
-
-
-/* =========================
-       STICKMAN
-========================= */
-
-
-#stickman{
-    position:fixed;
-    width:70px;
-    height:110px;
-    left:50%;
-    bottom:100%;
-    z-index:99;
-}
-
-
-svg{
-    width:100%;
-}
-
-
-.line{
-    stroke:white;
-    stroke-width:4;
-    stroke-linecap:round;
-}
-
-
-.head{
-    fill:white;
-}
-
-
-
-/* falling from roof */
-
-.fall{
-    animation:fall 2s forwards ease-in;
-}
-
-
-@keyframes fall{
-
-0%{
-bottom:100%;
-transform:rotate(0);
-}
-
-70%{
-bottom:50%;
-transform:rotate(360deg);
-}
-
-100%{
-bottom:110px;
-transform:rotate(360deg);
-}
-
-}
-
-
-
-/* walking */
-
-.walk{
-    animation:walk 15s linear forwards;
-}
-
-
-@keyframes walk{
-
-from{
-left:-50px;
-}
-
-to{
-left:calc(50% - 150px);
-}
-
-}
-
-
-
-/* legs movement */
-
-.walk .leg1{
-animation:legs .4s infinite alternate;
-}
-
-.walk .leg2{
-animation:legs .4s infinite alternate-reverse;
-}
-
-
-@keyframes legs{
-from{
-transform:rotate(25deg);
-}
-
-to{
-transform:rotate(-25deg);
-}
-}
-
-
-
-/* sitting */
-
-.sit{
-    left:calc(50% - 150px)!important;
-}
-
-
-.sit .leg1{
-transform:rotate(70deg);
-}
-
-.sit .leg2{
-transform:rotate(-70deg);
-}
-
-
-
-/* computer */
-
-#computer{
-position:fixed;
-bottom:100px;
-left:calc(50% - 110px);
-width:70px;
-height:50px;
-background:#222;
-border:2px solid white;
 display:none;
 }
 
-
-#computer:after{
-content:"";
-position:absolute;
-width:30px;
-height:5px;
-background:white;
-bottom:-10px;
-left:18px;
+#thanks h2{
+font-size:60px;
+margin-bottom:20px;
 }
 
+#thanks p{
+font-size:20px;
+color:#999;
+margin-bottom:40px;
+}
 
+#thanks button{
+background:white;
+}
+
+@keyframes fade{
+to{
+opacity:1;
+}
+}
+
+@media(max-width:700px){
+
+h1{
+font-size:50px;
+letter-spacing:5px;
+}
+
+input,
+button{
+width:100%;
+}
+
+}
+
+/* --- stickman styles (moved out of <script>, into <style>) --- */
+#stickman-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 90px;
+  z-index: 99999;
+  pointer-events: none;
+  transform-origin: bottom center;
+}
+#stickman-wrap svg { width: 100%; height: 100%; overflow: visible; }
+
+#stickman-wrap .limb {
+  stroke: #fff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transform-box: fill-box;
+}
+#stickman-wrap .head { fill: #fff; }
+
+/* walk cycle: legs & arms swing */
+#stickman-wrap.walking .leg-l { animation: swingL 0.35s infinite ease-in-out; transform-origin: 30px 62px; }
+#stickman-wrap.walking .leg-r { animation: swingR 0.35s infinite ease-in-out; transform-origin: 30px 62px; }
+#stickman-wrap.walking .arm-l { animation: swingR 0.35s infinite ease-in-out; transform-origin: 30px 40px; }
+#stickman-wrap.walking .arm-r { animation: swingL 0.35s infinite ease-in-out; transform-origin: 30px 40px; }
+
+@keyframes swingL { 0%,100% { transform: rotate(25deg);} 50% { transform: rotate(-25deg);} }
+@keyframes swingR { 0%,100% { transform: rotate(-25deg);} 50% { transform: rotate(25deg);} }
+
+/* jump */
+#stickman-wrap.jumping { animation: jumpArc 0.6s ease-out; }
+@keyframes jumpArc {
+  0%   { transform: translateY(0) rotate(0deg); }
+  40%  { transform: translateY(-70px) rotate(180deg); }
+  70%  { transform: translateY(-70px) rotate(360deg); }
+  100% { transform: translateY(0) rotate(360deg); }
+}
+
+/* spin */
+#stickman-wrap.spinning { animation: spin 0.5s linear 2; }
+@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+
+/* sit / rest */
+#stickman-wrap.sitting .body-group { animation: none; }
+#stickman-wrap.sitting .leg-l { transform: rotate(70deg); transform-origin: 30px 62px; }
+#stickman-wrap.sitting .leg-r { transform: rotate(-70deg); transform-origin: 30px 62px; }
+#stickman-wrap.sitting .arm-l { transform: rotate(-10deg); transform-origin: 30px 40px; }
+#stickman-wrap.sitting .arm-r { transform: rotate(10deg); transform-origin: 30px 40px; }
+
+/* faceplant */
+#stickman-wrap.faceplant { animation: fall 0.5s ease-in forwards; }
+@keyframes fall { to { transform: rotate(90deg) translateY(10px);} }
+
+/* speech bubble */
+#stickman-bubble {
+  position: absolute;
+  bottom: 95px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #111;
+  font: 11px/1.2 -apple-system, sans-serif;
+  padding: 4px 8px;
+  border-radius: 8px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+#stickman-bubble.show { opacity: 1; }
 
 </style>
 
 </head>
 
-
 <body>
-
 
 <div class="container">
 
-
 <div id="landing">
 
-<h1>HEY-YOU :)</h1>
+<h1>H E Y - Y O U :)</h1>
 
 <p class="subtitle">
 Something exciting is coming.<br>
 Join the waitlist.
 </p>
 
+<form id="waitlist">
 
-<form id="form">
+<input
+type="email"
+placeholder="Enter your email"
+required>
 
-<input type="email" placeholder="Enter your email" required>
-
-<button>
-JOIN
+<button type="submit">
+Join
 </button>
 
 </form>
-
 
 <div class="footer">
 © NOTKUDA
@@ -323,13 +279,11 @@ JOIN
 
 </div>
 
-
-
 <div id="thanks" class="hidden">
 
 <h2>✓</h2>
 
-<h2>Thank You</h2>
+<h2>Thank You.</h2>
 
 <p>
 You're officially on the waitlist.
@@ -341,110 +295,131 @@ Go Back
 
 </div>
 
-
 </div>
 
-
-
-
-<!-- STICKMAN -->
-
-<div id="stickman">
-
-<svg viewBox="0 0 70 110">
-
-<circle class="head" cx="35" cy="15" r="10"/>
-
-<line class="line" x1="35" y1="25" x2="35" y2="65"/>
-
-
-<line class="line arm" x1="35" y1="35" x2="15" y2="55"/>
-
-<line class="line arm" x1="35" y1="35" x2="55" y2="55"/>
-
-
-<line class="line leg1" x1="35" y1="65" x2="15" y2="100"/>
-
-<line class="line leg2" x1="35" y1="65" x2="55" y2="100"/>
-
-
-</svg>
-
+<div id="stickman-wrap" class="walking">
+  <div id="stickman-bubble"></div>
+  <svg viewBox="0 0 60 90">
+    <g class="body-group">
+      <circle class="head" cx="30" cy="16" r="8"/>
+      <line class="limb" x1="30" y1="24" x2="30" y2="60"/>
+      <line class="limb arm-l" x1="30" y1="34" x2="15" y2="48"/>
+      <line class="limb arm-r" x1="30" y1="34" x2="45" y2="48"/>
+      <line class="limb leg-l" x1="30" y1="62" x2="15" y2="85"/>
+      <line class="limb leg-r" x1="30" y1="62" x2="45" y2="85"/>
+    </g>
+  </svg>
 </div>
-
-
-<div id="computer"></div>
-
-
 
 <script>
 
+document.getElementById("waitlist").addEventListener("submit", function (e) {
 
-// Form
+  e.preventDefault();
 
-document.getElementById("form")
-.addEventListener("submit",function(e){
+  document.getElementById("landing").classList.add("hidden");
 
-e.preventDefault();
-
-document.getElementById("landing")
-.classList.add("hidden");
-
-document.getElementById("thanks")
-.classList.remove("hidden");
+  document.getElementById("thanks").classList.remove("hidden");
 
 });
 
+(function () {
+  var el = document.getElementById('stickman-wrap');
+  var bubble = document.getElementById('stickman-bubble');
+  var x = 100;
+  var facing = 1; // 1 = right, -1 = left
+  var busy = false;
+  var lines = ["whee!", "parkour!", "yeet", "brb", "who put this here", "😤", "not today gravity"];
 
+  function setX(px) {
+    x = px;
+    el.style.left = x + 'px';
+  }
+  setX(x);
 
+  function say(text) {
+    bubble.textContent = text;
+    bubble.classList.add('show');
+    setTimeout(function () { bubble.classList.remove('show'); }, 1200);
+  }
 
+  function faceDir(dir) {
+    facing = dir;
+    el.style.transform = 'scaleX(' + dir + ')';
+  }
 
-// Stickman animation
+  function walkTo(targetX, callback) {
+    var startX = x;
+    var dist = targetX - startX;
+    faceDir(dist >= 0 ? 1 : -1);
+    el.className = 'walking';
+    var duration = Math.abs(dist) * 6; // ms per px
+    var startTime = null;
 
-let man=document.getElementById("stickman");
+    function step(ts) {
+      if (!startTime) startTime = ts;
+      var progress = Math.min((ts - startTime) / duration, 1);
+      setX(startX + dist * progress);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        callback && callback();
+      }
+    }
+    requestAnimationFrame(step);
+  }
 
-let computer=document.getElementById("computer");
+  function doAction(callback) {
+    var actions = ['jump', 'spin', 'sit', 'faceplant', 'shout'];
+    var action = actions[Math.floor(Math.random() * actions.length)];
+    el.classList.remove('walking');
 
+    if (action === 'jump') {
+      el.className = 'jumping';
+      setTimeout(function () { callback(); }, 650);
+    } else if (action === 'spin') {
+      el.className = 'spinning';
+      setTimeout(function () { callback(); }, 1050);
+    } else if (action === 'sit') {
+      el.className = 'sitting';
+      say("brb");
+      setTimeout(function () { callback(); }, 1500);
+    } else if (action === 'faceplant') {
+      el.className = 'faceplant';
+      setTimeout(function () {
+        el.style.transform = 'scaleX(' + facing + ') rotate(0deg)';
+        callback();
+      }, 900);
+    } else {
+      say(lines[Math.floor(Math.random() * lines.length)]);
+      el.className = 'walking';
+      setTimeout(callback, 500);
+    }
+  }
 
-// jump from roof
+  function loop() {
+    if (busy) return;
+    busy = true;
+    var maxX = window.innerWidth - 60;
+    var target = Math.random() * maxX;
+    walkTo(target, function () {
+      if (Math.random() < 0.6) {
+        doAction(function () {
+          busy = false;
+          setTimeout(loop, 200 + Math.random() * 800);
+        });
+      } else {
+        busy = false;
+        setTimeout(loop, 200 + Math.random() * 800);
+      }
+    });
+  }
 
-setTimeout(()=>{
-
-man.classList.add("fall");
-
-
-},3000);
-
-
-
-setTimeout(()=>{
-
-
-man.classList.remove("fall");
-
-man.classList.add("walk");
-
-
-},5200);
-
-
-
-setTimeout(()=>{
-
-
-man.classList.remove("walk");
-
-man.classList.add("sit");
-
-computer.style.display="block";
-
-
-},21000);
-
-
+  // kick things off after a short delay
+  setTimeout(loop, 1000);
+})();
 
 </script>
-
 
 </body>
 </html>
