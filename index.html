@@ -172,16 +172,21 @@ width:100%;
 
 }
 
-/* --- stickman styles (moved out of <script>, into <style>) --- */
+/* ============================================================
+   STICKMAN — jointed limbs (upper + lower segments) so poses
+   can bend at elbows/knees instead of swinging as rigid rods.
+   ============================================================ */
+
 #stickman-wrap {
   position: fixed;
   bottom: 0;
   left: 0;
   width: 60px;
-  height: 90px;
+  height: 100px;
   z-index: 99999;
   pointer-events: none;
-  transform-origin: bottom center;
+  --walk-dur: 0.36s;
+  --stride: 22deg;
 }
 #stickman-wrap svg { width: 100%; height: 100%; overflow: visible; }
 
@@ -189,47 +194,150 @@ width:100%;
   stroke: #fff;
   stroke-width: 4;
   stroke-linecap: round;
-  transform-box: fill-box;
 }
 #stickman-wrap .head { fill: #fff; }
 
-/* walk cycle: legs & arms swing */
-#stickman-wrap.walking .leg-l { animation: swingL 0.35s infinite ease-in-out; transform-origin: 30px 62px; }
-#stickman-wrap.walking .leg-r { animation: swingR 0.35s infinite ease-in-out; transform-origin: 30px 62px; }
-#stickman-wrap.walking .arm-l { animation: swingR 0.35s infinite ease-in-out; transform-origin: 30px 40px; }
-#stickman-wrap.walking .arm-r { animation: swingL 0.35s infinite ease-in-out; transform-origin: 30px 40px; }
-
-@keyframes swingL { 0%,100% { transform: rotate(25deg);} 50% { transform: rotate(-25deg);} }
-@keyframes swingR { 0%,100% { transform: rotate(-25deg);} 50% { transform: rotate(25deg);} }
-
-/* jump */
-#stickman-wrap.jumping { animation: jumpArc 0.6s ease-out; }
-@keyframes jumpArc {
-  0%   { transform: translateY(0) rotate(0deg); }
-  40%  { transform: translateY(-70px) rotate(180deg); }
-  70%  { transform: translateY(-70px) rotate(360deg); }
-  100% { transform: translateY(0) rotate(360deg); }
+/* pixel transform-origin values (set inline per joint) should map
+   to the SVG viewBox coordinate space, not each shape's own box */
+#stickman-wrap svg .upper-arm-l,
+#stickman-wrap svg .upper-arm-r,
+#stickman-wrap svg .lower-arm-l,
+#stickman-wrap svg .lower-arm-r,
+#stickman-wrap svg .upper-leg-l,
+#stickman-wrap svg .upper-leg-r,
+#stickman-wrap svg .lower-leg-l,
+#stickman-wrap svg .lower-leg-r {
+  transform-box: view-box;
+  transition: transform .25s cubic-bezier(.4,0,.2,1);
+}
+#stickman-wrap svg .body-group,
+#stickman-wrap svg .head {
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
-/* spin */
-#stickman-wrap.spinning { animation: spin 0.5s linear 2; }
-@keyframes spin { from { transform: rotate(0deg);} to { transform: rotate(360deg);} }
+/* ---------- idle: gentle breathing instead of a frozen pose ---------- */
+@keyframes breathe {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-1.5px); }
+}
+@keyframes idleSway {
+  0%, 100% { transform: rotate(0deg); }
+  50%      { transform: rotate(2deg); }
+}
+#stickman-wrap.idle .body-group { animation: breathe 2.4s ease-in-out infinite; }
+#stickman-wrap.idle .head       { animation: idleSway 3.6s ease-in-out infinite; }
 
-/* sit / rest */
-#stickman-wrap.sitting .body-group { animation: none; }
-#stickman-wrap.sitting .leg-l { transform: rotate(70deg); transform-origin: 30px 62px; }
-#stickman-wrap.sitting .leg-r { transform: rotate(-70deg); transform-origin: 30px 62px; }
-#stickman-wrap.sitting .arm-l { transform: rotate(-10deg); transform-origin: 30px 40px; }
-#stickman-wrap.sitting .arm-r { transform: rotate(10deg); transform-origin: 30px 40px; }
+/* ---------- walking: phase-shifted opposite limbs via negative delay ---------- */
+@keyframes hipSwing {
+  0%   { transform: rotate(calc(var(--stride) * -1)); }
+  50%  { transform: rotate(var(--stride)); }
+  100% { transform: rotate(calc(var(--stride) * -1)); }
+}
+@keyframes kneeBend {
+  0%   { transform: rotate(6deg); }
+  12%  { transform: rotate(42deg); }
+  50%  { transform: rotate(2deg); }
+  88%  { transform: rotate(34deg); }
+  100% { transform: rotate(6deg); }
+}
+@keyframes shoulderSwing {
+  0%   { transform: rotate(var(--stride)); }
+  50%  { transform: rotate(calc(var(--stride) * -1)); }
+  100% { transform: rotate(var(--stride)); }
+}
+@keyframes elbowSwing {
+  0%   { transform: rotate(18deg); }
+  50%  { transform: rotate(4deg); }
+  100% { transform: rotate(18deg); }
+}
+@keyframes bodyBounce {
+  0%, 100% { transform: translateY(0); }
+  25%      { transform: translateY(-2.5px); }
+  50%      { transform: translateY(0.5px); }
+  75%      { transform: translateY(-2.5px); }
+}
+@keyframes headBob {
+  0%, 50%, 100% { transform: rotate(0deg); }
+  25%           { transform: rotate(-4deg); }
+  75%           { transform: rotate(4deg); }
+}
 
-/* faceplant */
-#stickman-wrap.faceplant { animation: fall 0.5s ease-in forwards; }
-@keyframes fall { to { transform: rotate(90deg) translateY(10px);} }
+#stickman-wrap.walking .upper-leg-l { animation: hipSwing var(--walk-dur) ease-in-out infinite; }
+#stickman-wrap.walking .upper-leg-r { animation: hipSwing var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
+#stickman-wrap.walking .lower-leg-l { animation: kneeBend var(--walk-dur) ease-in-out infinite; }
+#stickman-wrap.walking .lower-leg-r { animation: kneeBend var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
+#stickman-wrap.walking .upper-arm-l { animation: shoulderSwing var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
+#stickman-wrap.walking .upper-arm-r { animation: shoulderSwing var(--walk-dur) ease-in-out infinite; }
+#stickman-wrap.walking .lower-arm-l { animation: elbowSwing var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
+#stickman-wrap.walking .lower-arm-r { animation: elbowSwing var(--walk-dur) ease-in-out infinite; }
+#stickman-wrap.walking .body-group  { animation: bodyBounce var(--walk-dur) ease-in-out infinite; }
+#stickman-wrap.walking .head        { animation: headBob calc(var(--walk-dur) * 2) ease-in-out infinite; }
 
-/* speech bubble */
+/* ---------- jump: squash before takeoff, tuck mid-air, squash on landing ---------- */
+@keyframes jumpArc {
+  0%   { transform: translateY(0)    rotate(0deg)   scale(1, 1); }
+  14%  { transform: translateY(5px)  rotate(0deg)   scale(1.12, 0.85); }
+  45%  { transform: translateY(-72px) rotate(180deg) scale(0.9, 1.06); }
+  70%  { transform: translateY(-72px) rotate(360deg) scale(0.9, 1.06); }
+  90%  { transform: translateY(4px)  rotate(360deg) scale(1.15, 0.85); }
+  100% { transform: translateY(0)    rotate(360deg) scale(1, 1); }
+}
+@keyframes legTuck {
+  0%, 100% { transform: rotate(0deg); }
+  45%, 70% { transform: rotate(22deg); }
+}
+@keyframes kneeTuck {
+  0%, 100% { transform: rotate(4deg); }
+  45%, 70% { transform: rotate(65deg); }
+}
+#stickman-wrap.jumping .body-group  { animation: jumpArc 0.7s cubic-bezier(.36,.07,.19,.97) forwards; }
+#stickman-wrap.jumping .upper-leg-l,
+#stickman-wrap.jumping .upper-leg-r { animation: legTuck 0.7s ease-in-out forwards; }
+#stickman-wrap.jumping .lower-leg-l,
+#stickman-wrap.jumping .lower-leg-r { animation: kneeTuck 0.7s ease-in-out forwards; }
+#stickman-wrap.jumping .upper-arm-l { transform: rotate(-40deg); }
+#stickman-wrap.jumping .upper-arm-r { transform: rotate(40deg); }
+
+/* ---------- spin: arms fly out for momentum ---------- */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+#stickman-wrap.spinning .body-group { animation: spin 0.5s cubic-bezier(.45,0,.55,1) 2; }
+#stickman-wrap.spinning .upper-arm-l { transform: rotate(-75deg); }
+#stickman-wrap.spinning .upper-arm-r { transform: rotate(75deg); }
+#stickman-wrap.spinning .lower-arm-l { transform: rotate(20deg); }
+#stickman-wrap.spinning .lower-arm-r { transform: rotate(-20deg); }
+
+/* ---------- sit: bent knees, resting arms, subtle breathing ---------- */
+#stickman-wrap.sitting .upper-leg-l { transform: rotate(78deg); }
+#stickman-wrap.sitting .lower-leg-l { transform: rotate(-72deg); }
+#stickman-wrap.sitting .upper-leg-r { transform: rotate(-78deg); }
+#stickman-wrap.sitting .lower-leg-r { transform: rotate(72deg); }
+#stickman-wrap.sitting .upper-arm-l { transform: rotate(-28deg); }
+#stickman-wrap.sitting .upper-arm-r { transform: rotate(28deg); }
+#stickman-wrap.sitting .lower-arm-l { transform: rotate(22deg); }
+#stickman-wrap.sitting .lower-arm-r { transform: rotate(-22deg); }
+#stickman-wrap.sitting .body-group  { animation: breathe 1.6s ease-in-out infinite; }
+
+/* ---------- faceplant: topple forward with flailing arms ---------- */
+@keyframes fall {
+  0%   { transform: rotate(0deg)  translateY(0); }
+  55%  { transform: rotate(96deg) translateY(9px); }
+  75%  { transform: rotate(84deg) translateY(6px); }
+  100% { transform: rotate(90deg) translateY(9px); }
+}
+#stickman-wrap.faceplant .body-group  { animation: fall 0.55s cubic-bezier(.55,0,.85,.35) forwards; }
+#stickman-wrap.faceplant .upper-arm-l { transform: rotate(-100deg); }
+#stickman-wrap.faceplant .upper-arm-r { transform: rotate(-70deg); }
+#stickman-wrap.faceplant .lower-arm-l { transform: rotate(-15deg); }
+#stickman-wrap.faceplant .lower-arm-r { transform: rotate(20deg); }
+
+/* ---------- speech bubble ---------- */
 #stickman-bubble {
   position: absolute;
-  bottom: 95px;
+  bottom: 105px;
   left: 50%;
   transform: translateX(-50%);
   background: #fff;
@@ -297,16 +405,40 @@ Go Back
 
 </div>
 
-<div id="stickman-wrap" class="walking">
+<div id="stickman-wrap" class="idle">
   <div id="stickman-bubble"></div>
-  <svg viewBox="0 0 60 90">
+  <svg viewBox="0 0 60 100">
     <g class="body-group">
-      <circle class="head" cx="30" cy="16" r="8"/>
-      <line class="limb" x1="30" y1="24" x2="30" y2="60"/>
-      <line class="limb arm-l" x1="30" y1="34" x2="15" y2="48"/>
-      <line class="limb arm-r" x1="30" y1="34" x2="45" y2="48"/>
-      <line class="limb leg-l" x1="30" y1="62" x2="15" y2="85"/>
-      <line class="limb leg-r" x1="30" y1="62" x2="45" y2="85"/>
+      <circle class="head" cx="30" cy="14" r="8"/>
+      <line class="limb" x1="30" y1="22" x2="30" y2="58"/>
+
+      <g class="upper-arm-l" style="transform-origin:30px 26px;">
+        <line class="limb" x1="30" y1="26" x2="17" y2="40"/>
+        <g class="lower-arm-l" style="transform-origin:17px 40px;">
+          <line class="limb" x1="17" y1="40" x2="9" y2="52"/>
+        </g>
+      </g>
+
+      <g class="upper-arm-r" style="transform-origin:30px 26px;">
+        <line class="limb" x1="30" y1="26" x2="43" y2="40"/>
+        <g class="lower-arm-r" style="transform-origin:43px 40px;">
+          <line class="limb" x1="43" y1="40" x2="51" y2="52"/>
+        </g>
+      </g>
+
+      <g class="upper-leg-l" style="transform-origin:30px 58px;">
+        <line class="limb" x1="30" y1="58" x2="21" y2="76"/>
+        <g class="lower-leg-l" style="transform-origin:21px 76px;">
+          <line class="limb" x1="21" y1="76" x2="16" y2="94"/>
+        </g>
+      </g>
+
+      <g class="upper-leg-r" style="transform-origin:30px 58px;">
+        <line class="limb" x1="30" y1="58" x2="39" y2="76"/>
+        <g class="lower-leg-r" style="transform-origin:39px 76px;">
+          <line class="limb" x1="39" y1="76" x2="44" y2="94"/>
+        </g>
+      </g>
     </g>
   </svg>
 </div>
@@ -331,6 +463,10 @@ document.getElementById("waitlist").addEventListener("submit", function (e) {
   var busy = false;
   var lines = ["whee!", "parkour!", "yeet", "brb", "who put this here", "😤", "not today gravity"];
 
+  function easeInOutQuad(t) {
+    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+  }
+
   function setX(px) {
     x = px;
     el.style.left = x + 'px';
@@ -352,15 +488,23 @@ document.getElementById("waitlist").addEventListener("submit", function (e) {
     var startX = x;
     var dist = targetX - startX;
     faceDir(dist >= 0 ? 1 : -1);
+
+    // a little randomness per walk so the gait never looks identical twice
+    var strideDeg = 16 + Math.random() * 12;     // 16–28deg swing amplitude
+    var stepSecs = 0.3 + Math.random() * 0.14;    // 0.30–0.44s per step cycle
+    el.style.setProperty('--stride', strideDeg + 'deg');
+    el.style.setProperty('--walk-dur', stepSecs + 's');
+
     el.className = 'walking';
-    var duration = Math.abs(dist) * 6; // ms per px
+    var duration = Math.max(Math.abs(dist) * 7, 250); // ms, scales with distance
     var startTime = null;
 
     function step(ts) {
       if (!startTime) startTime = ts;
-      var progress = Math.min((ts - startTime) / duration, 1);
-      setX(startX + dist * progress);
-      if (progress < 1) {
+      var t = Math.min((ts - startTime) / duration, 1);
+      var eased = easeInOutQuad(t);
+      setX(startX + dist * eased);
+      if (t < 1) {
         requestAnimationFrame(step);
       } else {
         callback && callback();
@@ -372,27 +516,27 @@ document.getElementById("waitlist").addEventListener("submit", function (e) {
   function doAction(callback) {
     var actions = ['jump', 'spin', 'sit', 'faceplant', 'shout'];
     var action = actions[Math.floor(Math.random() * actions.length)];
-    el.classList.remove('walking');
 
     if (action === 'jump') {
       el.className = 'jumping';
-      setTimeout(function () { callback(); }, 650);
+      setTimeout(function () { el.className = 'idle'; callback(); }, 700);
     } else if (action === 'spin') {
       el.className = 'spinning';
-      setTimeout(function () { callback(); }, 1050);
+      setTimeout(function () { el.className = 'idle'; callback(); }, 1000);
     } else if (action === 'sit') {
       el.className = 'sitting';
       say("brb");
-      setTimeout(function () { callback(); }, 1500);
+      setTimeout(function () { el.className = 'idle'; callback(); }, 1500);
     } else if (action === 'faceplant') {
       el.className = 'faceplant';
       setTimeout(function () {
-        el.style.transform = 'scaleX(' + facing + ') rotate(0deg)';
+        el.className = 'idle';
+        el.style.transform = 'scaleX(' + facing + ')';
         callback();
-      }, 900);
+      }, 850);
     } else {
       say(lines[Math.floor(Math.random() * lines.length)]);
-      el.className = 'walking';
+      el.className = 'idle';
       setTimeout(callback, 500);
     }
   }
@@ -403,6 +547,7 @@ document.getElementById("waitlist").addEventListener("submit", function (e) {
     var maxX = window.innerWidth - 60;
     var target = Math.random() * maxX;
     walkTo(target, function () {
+      el.className = 'idle';
       if (Math.random() < 0.6) {
         doAction(function () {
           busy = false;
