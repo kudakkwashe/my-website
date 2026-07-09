@@ -173,8 +173,11 @@ width:100%;
 }
 
 /* ============================================================
-   STICKMAN — jointed limbs (upper + lower segments) so poses
-   can bend at elbows/knees instead of swinging as rigid rods.
+   STICKMAN — procedural (JS-computed, lerp-eased) joints, no
+   CSS @keyframes. Lives on the bottom edge and randomly walks,
+   runs, or throws a kickboxing combo. Left arm always mirrors
+   the phase of the RIGHT leg (and vice versa) — normal
+   contralateral gait.
    ============================================================ */
 
 #stickman-wrap {
@@ -185,8 +188,7 @@ width:100%;
   height: 100px;
   z-index: 99999;
   pointer-events: none;
-  --walk-dur: 0.36s;
-  --stride: 22deg;
+  will-change: transform, left;
 }
 #stickman-wrap svg { width: 100%; height: 100%; overflow: visible; }
 
@@ -197,8 +199,8 @@ width:100%;
 }
 #stickman-wrap .head { fill: #fff; }
 
-/* pixel transform-origin values (set inline per joint) should map
-   to the SVG viewBox coordinate space, not each shape's own box */
+/* pixel transform-origin values (set inline per joint) map to the
+   SVG viewBox coordinate space rather than each shape's own box */
 #stickman-wrap svg .upper-arm-l,
 #stickman-wrap svg .upper-arm-r,
 #stickman-wrap svg .lower-arm-l,
@@ -208,7 +210,6 @@ width:100%;
 #stickman-wrap svg .lower-leg-l,
 #stickman-wrap svg .lower-leg-r {
   transform-box: view-box;
-  transition: transform .25s cubic-bezier(.4,0,.2,1);
 }
 #stickman-wrap svg .body-group,
 #stickman-wrap svg .head {
@@ -216,125 +217,6 @@ width:100%;
   transform-origin: center;
 }
 
-/* ---------- idle: gentle breathing instead of a frozen pose ---------- */
-@keyframes breathe {
-  0%, 100% { transform: translateY(0); }
-  50%      { transform: translateY(-1.5px); }
-}
-@keyframes idleSway {
-  0%, 100% { transform: rotate(0deg); }
-  50%      { transform: rotate(2deg); }
-}
-#stickman-wrap.idle .body-group { animation: breathe 2.4s ease-in-out infinite; }
-#stickman-wrap.idle .head       { animation: idleSway 3.6s ease-in-out infinite; }
-
-/* ---------- walking: phase-shifted opposite limbs via negative delay ---------- */
-@keyframes hipSwing {
-  0%   { transform: rotate(calc(var(--stride) * -1)); }
-  50%  { transform: rotate(var(--stride)); }
-  100% { transform: rotate(calc(var(--stride) * -1)); }
-}
-@keyframes kneeBend {
-  0%   { transform: rotate(6deg); }
-  12%  { transform: rotate(42deg); }
-  50%  { transform: rotate(2deg); }
-  88%  { transform: rotate(34deg); }
-  100% { transform: rotate(6deg); }
-}
-@keyframes shoulderSwing {
-  0%   { transform: rotate(var(--stride)); }
-  50%  { transform: rotate(calc(var(--stride) * -1)); }
-  100% { transform: rotate(var(--stride)); }
-}
-@keyframes elbowSwing {
-  0%   { transform: rotate(18deg); }
-  50%  { transform: rotate(4deg); }
-  100% { transform: rotate(18deg); }
-}
-@keyframes bodyBounce {
-  0%, 100% { transform: translateY(0); }
-  25%      { transform: translateY(-2.5px); }
-  50%      { transform: translateY(0.5px); }
-  75%      { transform: translateY(-2.5px); }
-}
-@keyframes headBob {
-  0%, 50%, 100% { transform: rotate(0deg); }
-  25%           { transform: rotate(-4deg); }
-  75%           { transform: rotate(4deg); }
-}
-
-#stickman-wrap.walking .upper-leg-l { animation: hipSwing var(--walk-dur) ease-in-out infinite; }
-#stickman-wrap.walking .upper-leg-r { animation: hipSwing var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
-#stickman-wrap.walking .lower-leg-l { animation: kneeBend var(--walk-dur) ease-in-out infinite; }
-#stickman-wrap.walking .lower-leg-r { animation: kneeBend var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
-#stickman-wrap.walking .upper-arm-l { animation: shoulderSwing var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
-#stickman-wrap.walking .upper-arm-r { animation: shoulderSwing var(--walk-dur) ease-in-out infinite; }
-#stickman-wrap.walking .lower-arm-l { animation: elbowSwing var(--walk-dur) ease-in-out infinite; animation-delay: calc(var(--walk-dur) / -2); }
-#stickman-wrap.walking .lower-arm-r { animation: elbowSwing var(--walk-dur) ease-in-out infinite; }
-#stickman-wrap.walking .body-group  { animation: bodyBounce var(--walk-dur) ease-in-out infinite; }
-#stickman-wrap.walking .head        { animation: headBob calc(var(--walk-dur) * 2) ease-in-out infinite; }
-
-/* ---------- jump: squash before takeoff, tuck mid-air, squash on landing ---------- */
-@keyframes jumpArc {
-  0%   { transform: translateY(0)    rotate(0deg)   scale(1, 1); }
-  14%  { transform: translateY(5px)  rotate(0deg)   scale(1.12, 0.85); }
-  45%  { transform: translateY(-72px) rotate(180deg) scale(0.9, 1.06); }
-  70%  { transform: translateY(-72px) rotate(360deg) scale(0.9, 1.06); }
-  90%  { transform: translateY(4px)  rotate(360deg) scale(1.15, 0.85); }
-  100% { transform: translateY(0)    rotate(360deg) scale(1, 1); }
-}
-@keyframes legTuck {
-  0%, 100% { transform: rotate(0deg); }
-  45%, 70% { transform: rotate(22deg); }
-}
-@keyframes kneeTuck {
-  0%, 100% { transform: rotate(4deg); }
-  45%, 70% { transform: rotate(65deg); }
-}
-#stickman-wrap.jumping .body-group  { animation: jumpArc 0.7s cubic-bezier(.36,.07,.19,.97) forwards; }
-#stickman-wrap.jumping .upper-leg-l,
-#stickman-wrap.jumping .upper-leg-r { animation: legTuck 0.7s ease-in-out forwards; }
-#stickman-wrap.jumping .lower-leg-l,
-#stickman-wrap.jumping .lower-leg-r { animation: kneeTuck 0.7s ease-in-out forwards; }
-#stickman-wrap.jumping .upper-arm-l { transform: rotate(-40deg); }
-#stickman-wrap.jumping .upper-arm-r { transform: rotate(40deg); }
-
-/* ---------- spin: arms fly out for momentum ---------- */
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
-}
-#stickman-wrap.spinning .body-group { animation: spin 0.5s cubic-bezier(.45,0,.55,1) 2; }
-#stickman-wrap.spinning .upper-arm-l { transform: rotate(-75deg); }
-#stickman-wrap.spinning .upper-arm-r { transform: rotate(75deg); }
-#stickman-wrap.spinning .lower-arm-l { transform: rotate(20deg); }
-#stickman-wrap.spinning .lower-arm-r { transform: rotate(-20deg); }
-
-/* ---------- sit: bent knees, resting arms, subtle breathing ---------- */
-#stickman-wrap.sitting .upper-leg-l { transform: rotate(78deg); }
-#stickman-wrap.sitting .lower-leg-l { transform: rotate(-72deg); }
-#stickman-wrap.sitting .upper-leg-r { transform: rotate(-78deg); }
-#stickman-wrap.sitting .lower-leg-r { transform: rotate(72deg); }
-#stickman-wrap.sitting .upper-arm-l { transform: rotate(-28deg); }
-#stickman-wrap.sitting .upper-arm-r { transform: rotate(28deg); }
-#stickman-wrap.sitting .lower-arm-l { transform: rotate(22deg); }
-#stickman-wrap.sitting .lower-arm-r { transform: rotate(-22deg); }
-#stickman-wrap.sitting .body-group  { animation: breathe 1.6s ease-in-out infinite; }
-
-/* ---------- faceplant: topple forward with flailing arms ---------- */
-@keyframes fall {
-  0%   { transform: rotate(0deg)  translateY(0); }
-  55%  { transform: rotate(96deg) translateY(9px); }
-  75%  { transform: rotate(84deg) translateY(6px); }
-  100% { transform: rotate(90deg) translateY(9px); }
-}
-#stickman-wrap.faceplant .body-group  { animation: fall 0.55s cubic-bezier(.55,0,.85,.35) forwards; }
-#stickman-wrap.faceplant .upper-arm-l { transform: rotate(-100deg); }
-#stickman-wrap.faceplant .upper-arm-r { transform: rotate(-70deg); }
-#stickman-wrap.faceplant .lower-arm-l { transform: rotate(-15deg); }
-#stickman-wrap.faceplant .lower-arm-r { transform: rotate(20deg); }
-
-/* ---------- speech bubble ---------- */
 #stickman-bubble {
   position: absolute;
   bottom: 105px;
@@ -348,6 +230,7 @@ width:100%;
   white-space: nowrap;
   opacity: 0;
   transition: opacity 0.2s;
+  z-index: 2;
 }
 #stickman-bubble.show { opacity: 1; }
 
@@ -405,7 +288,7 @@ Go Back
 
 </div>
 
-<div id="stickman-wrap" class="idle">
+<div id="stickman-wrap">
   <div id="stickman-bubble"></div>
   <svg viewBox="0 0 60 100">
     <g class="body-group">
@@ -456,112 +339,270 @@ document.getElementById("waitlist").addEventListener("submit", function (e) {
 });
 
 (function () {
-  var el = document.getElementById('stickman-wrap');
+
+  var wrap = document.getElementById('stickman-wrap');
   var bubble = document.getElementById('stickman-bubble');
-  var x = 100;
-  var facing = 1; // 1 = right, -1 = left
-  var busy = false;
-  var lines = ["whee!", "parkour!", "yeet", "brb", "who put this here", "😤", "not today gravity"];
 
-  function easeInOutQuad(t) {
-    return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
-  }
+  var joints = {
+    bodyGroup: wrap.querySelector('.body-group'),
+    head:      wrap.querySelector('.head'),
+    upperArmL: wrap.querySelector('.upper-arm-l'),
+    lowerArmL: wrap.querySelector('.lower-arm-l'),
+    upperArmR: wrap.querySelector('.upper-arm-r'),
+    lowerArmR: wrap.querySelector('.lower-arm-r'),
+    upperLegL: wrap.querySelector('.upper-leg-l'),
+    lowerLegL: wrap.querySelector('.lower-leg-l'),
+    upperLegR: wrap.querySelector('.upper-leg-r'),
+    lowerLegR: wrap.querySelector('.lower-leg-r')
+  };
 
-  function setX(px) {
-    x = px;
-    el.style.left = x + 'px';
-  }
-  setX(x);
+  // current smoothed angles (deg) — everything eases toward a target each frame
+  var angle = {
+    upperArmL: 0, lowerArmL: 18, upperArmR: 0, lowerArmR: 18,
+    upperLegL: 0, lowerLegL: 6,  upperLegR: 0, lowerLegR: 6
+  };
+
+  var chatLines = ["yo", "☝️ this way", "who put this here", "brb", "😤"];
+  var kickLines = ["hyah!", "kiai!", "hup!", "tch!"];
 
   function say(text) {
     bubble.textContent = text;
     bubble.classList.add('show');
-    setTimeout(function () { bubble.classList.remove('show'); }, 1200);
+    setTimeout(function () { bubble.classList.remove('show'); }, 900);
   }
 
-  function faceDir(dir) {
-    facing = dir;
-    el.style.transform = 'scaleX(' + dir + ')';
+  // -- easing helpers ---------------------------------------------------
+  function lerp(a, b, k) { return a + (b - a) * k; }
+  function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+  function easeInCubic(t) { return t * t * t; }
+  function easeOutQuad(t) { return 1 - (1 - t) * (1 - t); }
+
+  // -- world state ---------------------------------------------------------
+  var pad = 10;
+  var W = window.innerWidth;
+  window.addEventListener('resize', function () { W = window.innerWidth; });
+
+  var x = Math.random() * (W - 60);
+  var facing = 1;
+  var speed = 0;              // current px/s — drives stride frequency
+  var maxSpeed = 60;
+  var running = false;
+  var strideBase = 18;
+  var targetX = x;
+  var phase = 0;               // walk/run-cycle phase accumulator
+
+  var mode = 'pause';          // 'move' | 'kickbox' | 'pause'
+  var modeStart = performance.now();
+  var modeDuration = 500;
+
+  function setMode(next, duration) {
+    mode = next;
+    modeStart = performance.now();
+    modeDuration = duration || 0;
   }
 
-  function walkTo(targetX, callback) {
-    var startX = x;
-    var dist = targetX - startX;
-    faceDir(dist >= 0 ? 1 : -1);
-
-    // a little randomness per walk so the gait never looks identical twice
-    var strideDeg = 16 + Math.random() * 12;     // 16–28deg swing amplitude
-    var stepSecs = 0.3 + Math.random() * 0.14;    // 0.30–0.44s per step cycle
-    el.style.setProperty('--stride', strideDeg + 'deg');
-    el.style.setProperty('--walk-dur', stepSecs + 's');
-
-    el.className = 'walking';
-    var duration = Math.max(Math.abs(dist) * 7, 250); // ms, scales with distance
-    var startTime = null;
-
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      var t = Math.min((ts - startTime) / duration, 1);
-      var eased = easeInOutQuad(t);
-      setX(startX + dist * eased);
-      if (t < 1) {
-        requestAnimationFrame(step);
-      } else {
-        callback && callback();
-      }
-    }
-    requestAnimationFrame(step);
-  }
-
-  function doAction(callback) {
-    var actions = ['jump', 'spin', 'sit', 'faceplant', 'shout'];
-    var action = actions[Math.floor(Math.random() * actions.length)];
-
-    if (action === 'jump') {
-      el.className = 'jumping';
-      setTimeout(function () { el.className = 'idle'; callback(); }, 700);
-    } else if (action === 'spin') {
-      el.className = 'spinning';
-      setTimeout(function () { el.className = 'idle'; callback(); }, 1000);
-    } else if (action === 'sit') {
-      el.className = 'sitting';
-      say("brb");
-      setTimeout(function () { el.className = 'idle'; callback(); }, 1500);
-    } else if (action === 'faceplant') {
-      el.className = 'faceplant';
-      setTimeout(function () {
-        el.className = 'idle';
-        el.style.transform = 'scaleX(' + facing + ')';
-        callback();
-      }, 850);
+  function pickMoveTarget(isRun) {
+    running = isRun;
+    targetX = pad + Math.random() * (W - 60 - pad * 2);
+    if (isRun) {
+      maxSpeed = 150 + Math.random() * 90;
+      strideBase = 30 + Math.random() * 12;
     } else {
-      say(lines[Math.floor(Math.random() * lines.length)]);
-      el.className = 'idle';
-      setTimeout(callback, 500);
+      maxSpeed = 40 + Math.random() * 35;
+      strideBase = 14 + Math.random() * 10;
+    }
+    setMode('move');
+  }
+
+  function startKickbox() {
+    setMode('kickbox', 1900 + Math.random() * 300);
+    say(kickLines[Math.floor(Math.random() * kickLines.length)]);
+  }
+
+  function pickNextBehaviour() {
+    var roll = Math.random();
+    if (roll < 0.42) {
+      pickMoveTarget(false);           // walk
+    } else if (roll < 0.72) {
+      pickMoveTarget(true);            // run
+    } else if (roll < 0.92) {
+      startKickbox();
+    } else {
+      say(chatLines[Math.floor(Math.random() * chatLines.length)]);
+      setMode('pause', 400 + Math.random() * 500);
     }
   }
 
-  function loop() {
-    if (busy) return;
-    busy = true;
-    var maxX = window.innerWidth - 60;
-    var target = Math.random() * maxX;
-    walkTo(target, function () {
-      el.className = 'idle';
-      if (Math.random() < 0.6) {
-        doAction(function () {
-          busy = false;
-          setTimeout(loop, 200 + Math.random() * 800);
-        });
-      } else {
-        busy = false;
-        setTimeout(loop, 200 + Math.random() * 800);
-      }
-    });
+  function applyJoint(el, deg) {
+    el.style.transform = 'rotate(' + deg + 'deg)';
   }
 
-  // kick things off after a short delay
-  setTimeout(loop, 1000);
+  var last = performance.now();
+
+  function tick(now) {
+    var dt = Math.min((now - last) / 1000, 0.05);
+    last = now;
+
+    var bodyX = 0, bodyY = 0, bodyRot = 0, bodyScaleX = 1, bodyScaleY = 1;
+    var headRot = 0;
+
+    if (mode === 'move') {
+      var dx = targetX - x;
+      var dist = Math.abs(dx);
+
+      if (dist < 3) {
+        setMode('pause', running ? 250 + Math.random() * 350 : 150 + Math.random() * 500);
+      } else {
+        speed = lerp(speed, maxSpeed, clamp01(dt * (running ? 6 : 4)));
+        x += (dx > 0 ? 1 : -1) * Math.min(speed * dt, dist);
+        if (dist > 6) facing = dx >= 0 ? 1 : -1;
+      }
+
+      var freqMul = running ? 0.17 : 0.09;
+      phase += speed * dt * freqMul + dt * (running ? 1.1 : 0.6);
+
+      var stride = strideBase + Math.sin(now * 0.0006) * (running ? 4 : 3);
+      var kneeAmp = running ? 60 : 34;
+      var armMul = running ? 1.15 : 0.85;
+      var elbowAmp = running ? 34 : 20;
+      var bounceAmp = running ? 7 : 3;
+      var lean = running ? -12 * facing : 0;
+      var smoothK = clamp01(dt * (running ? 16 : 12));
+
+      // NOTE on pairing: hipR uses (phase+PI); armL uses the *same*
+      // (phase+PI) — so the left arm always swings in lockstep with
+      // the right leg, and armR mirrors hipL. That's normal gait.
+      var hipL = stride * Math.sin(phase);
+      var hipR = stride * Math.sin(phase + Math.PI);
+      var armL = stride * armMul * Math.sin(phase + Math.PI);   // ← locked to hipR
+      var armR = stride * armMul * Math.sin(phase);             // ← locked to hipL
+
+      var kneeL = 6 + kneeAmp * Math.max(0, Math.sin(phase + Math.PI * 0.5));
+      var kneeR = 6 + kneeAmp * Math.max(0, Math.sin(phase + Math.PI * 1.5));
+      var elbowL = 14 + elbowAmp * Math.max(0, Math.sin(phase + Math.PI * 1.5));
+      var elbowR = 14 + elbowAmp * Math.max(0, Math.sin(phase + Math.PI * 0.5));
+
+      angle.upperLegL = lerp(angle.upperLegL, hipL, smoothK);
+      angle.upperLegR = lerp(angle.upperLegR, hipR, smoothK);
+      angle.lowerLegL = lerp(angle.lowerLegL, kneeL, smoothK);
+      angle.lowerLegR = lerp(angle.lowerLegR, kneeR, smoothK);
+      angle.upperArmL = lerp(angle.upperArmL, armL, smoothK);
+      angle.upperArmR = lerp(angle.upperArmR, armR, smoothK);
+      angle.lowerArmL = lerp(angle.lowerArmL, elbowL, smoothK);
+      angle.lowerArmR = lerp(angle.lowerArmR, elbowR, smoothK);
+
+      bodyY = -Math.abs(Math.sin(phase)) * bounceAmp;
+      bodyRot = lean;
+      headRot = -hipL * 0.1;
+
+    } else if (mode === 'pause') {
+      speed = lerp(speed, 0, clamp01(dt * 6));
+      var t = now * 0.001;
+      bodyY = Math.sin(t * 1.3) * 1.5;
+      headRot = Math.sin(t * 0.7) * 3;
+      var restArm = Math.sin(t * 0.9) * 3;
+
+      angle.upperLegL = lerp(angle.upperLegL, 0, clamp01(dt * 6));
+      angle.upperLegR = lerp(angle.upperLegR, 0, clamp01(dt * 6));
+      angle.lowerLegL = lerp(angle.lowerLegL, 6, clamp01(dt * 6));
+      angle.lowerLegR = lerp(angle.lowerLegR, 6, clamp01(dt * 6));
+      angle.upperArmL = lerp(angle.upperArmL, restArm, clamp01(dt * 6));
+      angle.upperArmR = lerp(angle.upperArmR, -restArm, clamp01(dt * 6));
+      angle.lowerArmL = lerp(angle.lowerArmL, 18, clamp01(dt * 6));
+      angle.lowerArmR = lerp(angle.lowerArmR, 18, clamp01(dt * 6));
+
+      if (now - modeStart > modeDuration) pickNextBehaviour();
+
+    } else if (mode === 'kickbox') {
+      // one combo: guard -> jab -> cross -> roundhouse kick -> guard
+      var p = clamp01((now - modeStart) / modeDuration);
+      var guardArmL = -35, guardArmR = -35, guardElbowL = 90, guardElbowR = 90;
+
+      angle.upperLegL = lerp(angle.upperLegL, 0, clamp01(dt * 10));
+      angle.lowerLegL = lerp(angle.lowerLegL, 6, clamp01(dt * 10));
+
+      if (p < 0.18) {
+        // guard up
+        var k = clamp01(p / 0.18);
+        angle.upperArmL = lerp(angle.upperArmL, guardArmL, k * 0.5 + 0.1);
+        angle.upperArmR = lerp(angle.upperArmR, guardArmR, k * 0.5 + 0.1);
+        angle.lowerArmL = lerp(angle.lowerArmL, guardElbowL, k * 0.5 + 0.1);
+        angle.lowerArmR = lerp(angle.lowerArmR, guardElbowR, k * 0.5 + 0.1);
+        angle.upperLegR = lerp(angle.upperLegR, 0, clamp01(dt * 10));
+        angle.lowerLegR = lerp(angle.lowerLegR, 6, clamp01(dt * 10));
+
+      } else if (p < 0.36) {
+        // left jab — snap out, snap back
+        var jk = clamp01((p - 0.18) / 0.18);
+        var punch = jk < 0.5 ? easeOutCubic(jk * 2) : 1 - easeInCubic((jk - 0.5) * 2);
+        angle.upperArmL = lerp(guardArmL, -95, punch);
+        angle.lowerArmL = lerp(guardElbowL, 8, punch);
+        angle.upperArmR = guardArmR;
+        angle.lowerArmR = guardElbowR;
+
+      } else if (p < 0.56) {
+        // right cross — bigger, with a little hip/shoulder rotation
+        var ck = clamp01((p - 0.36) / 0.20);
+        var punch2 = ck < 0.5 ? easeOutCubic(ck * 2) : 1 - easeInCubic((ck - 0.5) * 2);
+        angle.upperArmR = lerp(guardArmR, -100, punch2);
+        angle.lowerArmR = lerp(guardElbowR, 6, punch2);
+        angle.upperArmL = guardArmL;
+        angle.lowerArmL = guardElbowL;
+        bodyRot = -10 * punch2 * facing;
+
+      } else if (p < 0.85) {
+        // right roundhouse kick
+        var kk = clamp01((p - 0.56) / 0.29);
+        var kick = kk < 0.55 ? easeOutQuad(kk / 0.55) : 1 - easeInCubic((kk - 0.55) / 0.45);
+        angle.upperLegR = lerp(0, 78, kick);
+        angle.lowerLegR = lerp(6, -55, kick);
+        angle.upperLegL = lerp(0, -10, kick * 0.4);
+        angle.upperArmL = lerp(guardArmL, -55, kick * 0.5);
+        angle.upperArmR = lerp(guardArmR, 20, kick * 0.6);
+        bodyRot = 18 * kick * facing;
+        bodyY = -kick * 4;
+        if (kk > 0.5 && kk < 0.58) say('hyah!');
+
+      } else {
+        // return to guard, settle
+        var rk = clamp01((p - 0.85) / 0.15);
+        angle.upperLegR = lerp(angle.upperLegR, 0, rk * 0.6 + 0.1);
+        angle.lowerLegR = lerp(angle.lowerLegR, 6, rk * 0.6 + 0.1);
+        angle.upperArmL = lerp(angle.upperArmL, guardArmL, rk * 0.6 + 0.1);
+        angle.upperArmR = lerp(angle.upperArmR, guardArmR, rk * 0.6 + 0.1);
+        angle.lowerArmL = lerp(angle.lowerArmL, guardElbowL, rk * 0.6 + 0.1);
+        angle.lowerArmR = lerp(angle.lowerArmR, guardElbowR, rk * 0.6 + 0.1);
+        bodyRot = lerp(bodyRot, 0, rk * 0.6);
+      }
+
+      if (p >= 1) setMode('pause', 300 + Math.random() * 400);
+    }
+
+    // -- apply to DOM --------------------------------------------------
+    wrap.style.left = x + 'px';
+    wrap.style.transform = 'scaleX(' + facing + ')';
+
+    joints.bodyGroup.style.transform =
+      'translateY(' + bodyY + 'px) rotate(' + bodyRot + 'deg) scale(' + bodyScaleX + ',' + bodyScaleY + ')';
+    joints.head.style.transform = 'rotate(' + headRot + 'deg)';
+
+    applyJoint(joints.upperArmL, angle.upperArmL);
+    applyJoint(joints.lowerArmL, angle.lowerArmL);
+    applyJoint(joints.upperArmR, angle.upperArmR);
+    applyJoint(joints.lowerArmR, angle.lowerArmR);
+    applyJoint(joints.upperLegL, angle.upperLegL);
+    applyJoint(joints.lowerLegL, angle.lowerLegL);
+    applyJoint(joints.upperLegR, angle.upperLegR);
+    applyJoint(joints.lowerLegR, angle.lowerLegR);
+
+    requestAnimationFrame(tick);
+  }
+
+  wrap.style.left = x + 'px';
+  setMode('pause', 800);
+  setTimeout(function () { requestAnimationFrame(tick); }, 600);
+
 })();
 
 </script>
